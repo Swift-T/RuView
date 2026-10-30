@@ -1,0 +1,37 @@
+# YD-ESP32-23 V1.3 / ESP32-S3 N16R8 headless profile.
+# Build with ESP-IDF v5.5.2, using this after sdkconfig.defaults.
+#
+# N16R8 has 16 MB flash and 8 MB octal PSRAM. Keep the headless board's
+# configuration separate from the generic display build. MEASURED on a
+# YD-ESP32-23 V1.3 / S3 rev 0.2: IDF 5.5.2, Wi-Fi association, DHCP, CSI
+# callbacks, and UDP delivery after older generic images failed to associate.
+# The SDK and hardware profile changed together; neither change alone has
+# been isolated as the cause of the earlier authentication failures.
+#
+# Keep the existing two-slot 8 MB partition layout. The physical flash is
+# 16 MB; the remaining space is deliberately unused by this profile.
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="16MB"
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions_display.csv"
+
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=240
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_USE_MALLOC=y
+
+# The YD board has no LCD or touch panel. Keep the RGB LED quiet, and avoid
+# fetching an unrelated WASM runtime for the Wi-Fi/CSI baseline.
+# CONFIG_DISPLAY_ENABLE is not set
+# CONFIG_LED_GAMMA_VIZ is not set
+# CONFIG_WASM_ENABLE is not set
+
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=115200
+CONFIG_ESP_WIFI_CSI_ENABLED=y
+CONFIG_EDGE_TIER=2

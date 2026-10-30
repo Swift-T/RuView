@@ -266,6 +266,34 @@ MSYS_NO_PATHCONV=1 docker run --rm \
 > [`sdkconfig.defaults.devkitc`](sdkconfig.defaults.devkitc) for the exact
 > build command.
 
+#### YD-ESP32-23 V1.3 / ESP32-S3 N16R8
+
+Use **ESP-IDF v5.5.2** and the
+[`sdkconfig.defaults.yd-esp32-s3-n16r8`](sdkconfig.defaults.yd-esp32-s3-n16r8)
+overlay for this headless board with 16 MB flash and 8 MB octal PSRAM.
+From an exported IDF shell, in this firmware directory:
+
+```sh
+idf.py -B build-yd-n16r8 -D IDF_TARGET=esp32s3 -D SDKCONFIG=build-yd-n16r8/sdkconfig -D "SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.defaults.yd-esp32-s3-n16r8" build
+```
+
+Use a fresh build/configuration path when changing profiles. The overlay keeps
+CSI and Tier 2 DSP enabled, disables the absent display and LED visualization,
+and leaves the optional WASM runtime off. It uses the existing two-slot
+`partitions_display.csv` layout within the first 8 MB of physical flash.
+Flash using the generated plan (`idf.py -B build-yd-n16r8 -p COM7 flash`),
+after confirming the port and backing up the board. The ROM image header uses
+DIO; the bootloader switches to the configured QIO mode at runtime.
+
+MEASURED on one YD-ESP32-23 V1.3, S3 rev 0.2: this build associated, obtained
+DHCP, captured CSI, and delivered UDP to the configured receiver where older
+generic binaries failed to authenticate. The SDK and board profile changed
+together; this does not establish which individual setting caused the failure.
+Verify a fresh boot and received traffic on each target board. If the server's
+`/health` reports growing `processing.udp.dropped_by_allowlist`, update its
+`--udp-allow` / `RUVIEW_UDP_ALLOW` with the receiver-observed source address.
+Container networking can change that source address.
+
 ### 2. Flash
 
 Offsets must match `partitions_display.csv` (8 MB) or `partitions_4mb.csv` (4 MB):
