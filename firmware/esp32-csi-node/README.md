@@ -294,6 +294,27 @@ Verify a fresh boot and received traffic on each target board. If the server's
 `--udp-allow` / `RUVIEW_UDP_ALLOW` with the receiver-observed source address.
 Container networking can change that source address.
 
+For a YD board that captures CSI but loses UDP/TCP at the normal transmit
+power, an optional lower-power overlay is available. In a MEASURED comparison
+on one S3 rev 0.2, changing only the runtime cap from 8.5 to 20 dBm reproduced
+UDP `ENOMEM` and TCP timeouts; returning to 8.5 dBm restored transmission.
+This identifies a working cap for that board, not the electrical cause of
+its failure. Boards that work at normal power should keep the base profile.
+
+```sh
+idf.py -B build-yd-low-tx -D IDF_TARGET=esp32s3 -D SDKCONFIG=build-yd-low-tx/sdkconfig -D "SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.defaults.yd-esp32-s3-n16r8;sdkconfig.defaults.yd-esp32-s3-n16r8-low-tx" build
+```
+
+The overlay enables `CSI_WIFI_TX_POWER_LIMIT` and sets
+`CSI_WIFI_MAX_TX_POWER=34` in 0.25 dBm units. The station applies the cap
+before its first association and logs the effective value. It does not change
+NVS provisioning. Reducing transmit power can reduce usable range; verify
+association, sustained UDP reception, and TCP responsiveness at the intended
+location. When updating a provisioned board with an unchanged partition
+layout, write only its selected application slot after backing it up; the
+full generated flash plan also writes OTA metadata and is not a
+data-preserving application update.
+
 ### 2. Flash
 
 Offsets must match `partitions_display.csv` (8 MB) or `partitions_4mb.csv` (4 MB):

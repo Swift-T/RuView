@@ -1,0 +1,6 @@
+# Optional COM8 workaround: apply AFTER the base YD N16R8 profile.
+# A lower cap restored association, UDP transmission, and TCP responsiveness
+# in the measured comparison. This is not a diagnosis of the electrical cause.
+# Do not apply to boards that already operate reliably at the default power.
+CONFIG_CSI_WIFI_TX_POWER_LIMIT=y
+CONFIG_CSI_WIFI_MAX_TX_POWER=34

@@ -70,6 +70,25 @@ menu "CSI Node Configuration"
         help
             WiFi channel to listen on for CSI data.
 
+    config CSI_WIFI_TX_POWER_LIMIT
+        bool "Apply a board-specific WiFi transmit power cap"
+        default n
+        help
+            Apply a runtime transmit power cap before the first association.
+            Enable only for a board for which a lower cap has been validated.
+            Reducing the cap can reduce the usable WiFi range.
+
+    config CSI_WIFI_MAX_TX_POWER
+        int "Maximum WiFi transmit power (0.25 dBm units)"
+        depends on CSI_WIFI_TX_POWER_LIMIT
+        default 34
+        range 8 84
+        help
+            Passed to esp_wifi_set_max_tx_power after the station starts.
+            The driver quantizes supported levels; 34 requests 8.5 dBm.
+            The effective cap is reported in the boot log. This does not
+            modify credentials or any other provisioned NVS configuration.
+
     config CSI_SELF_PING_HZ
         int "Connected-STA CSI probe rate (Hz)"
         default 50

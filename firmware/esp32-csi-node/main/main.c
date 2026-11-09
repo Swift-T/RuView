@@ -121,6 +121,15 @@ static void event_handler(void *arg, esp_event_base_t event_base,
          * using the same 2.4 GHz radio domain as existing CSI nodes. */
         ESP_ERROR_CHECK(esp_wifi_set_band_mode(WIFI_BAND_MODE_2G_ONLY));
 #endif
+#ifdef CONFIG_CSI_WIFI_TX_POWER_LIMIT
+        /* STA_START guarantees the driver is started. Apply the board cap
+         * before association so authentication also uses the selected power. */
+        ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(CONFIG_CSI_WIFI_MAX_TX_POWER));
+        int8_t tx_power = 0;
+        ESP_ERROR_CHECK(esp_wifi_get_max_tx_power(&tx_power));
+        ESP_LOGI(TAG, "WiFi TX power cap: %d.%02d dBm (requested %d x 0.25 dBm)",
+                 tx_power / 4, (tx_power % 4) * 25, CONFIG_CSI_WIFI_MAX_TX_POWER);
+#endif
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *disc = (wifi_event_sta_disconnected_t *)event_data;
